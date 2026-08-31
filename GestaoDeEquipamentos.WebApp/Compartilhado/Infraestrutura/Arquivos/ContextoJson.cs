@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Fabricantes.Dominio;
 
 namespace GestaoDeEquipamentos.WebApp.Compartilhado.Infraestrutura.Arquivos;
@@ -9,7 +10,7 @@ public sealed class ContextoJson
     private readonly string caminhoArquivoDados;
 
     public List<Fabricante> Fabricantes { get; set; } = new List<Fabricante>();
-
+    public List<Equipamento> Equipamentos { get; set; } = new List<Equipamento>();
 
     public ContextoJson()
     {
@@ -65,6 +66,7 @@ public sealed class ContextoJson
     private void Carregar(ContextoJson contexto)
     {
         Fabricantes = contexto.Fabricantes;
+        Equipamentos = contexto.Equipamentos;
     }
 
     public ContextoJson CarregarDadosPredefinidos()
@@ -80,11 +82,17 @@ public sealed class ContextoJson
             new Fabricante("PrimeData Sistemas Ltda.", "suporte@primedata.com.br", "(51) 3123-4505") { Id = 5 }
         });
 
+        contextoPredefinido.Equipamentos.AddRange(new List<Equipamento>
+        {
+            new("Notebool Dell", 3000m, DateTime.Parse("10/02/2023"), contextoPredefinido.Fabricantes[0]) { Id = 1 },
+            new("Monitor Samsung Odyssey G5", 1000m, DateTime.Parse("07/01/2025"), contextoPredefinido.Fabricantes[2]) { Id = 2 }
+        });
+
         return contextoPredefinido;
     }
 
     private bool PossuiDados()
     {
-        return Fabricantes.Count > 0;
+        return Fabricantes.Count > 0 && Equipamentos.Count > 0;
     }
 }
