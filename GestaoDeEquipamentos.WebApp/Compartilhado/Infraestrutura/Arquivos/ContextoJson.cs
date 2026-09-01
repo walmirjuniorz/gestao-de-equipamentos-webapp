@@ -1,5 +1,6 @@
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using GestaoDeEquipamentos.WebApp.Modulos.Chamados.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Fabricantes.Dominio;
 
@@ -11,6 +12,7 @@ public sealed class ContextoJson
 
     public List<Fabricante> Fabricantes { get; set; } = new List<Fabricante>();
     public List<Equipamento> Equipamentos { get; set; } = new List<Equipamento>();
+    public List<Chamado> Chamados { get; set; } = new List<Chamado>();
 
     public ContextoJson()
     {
@@ -67,6 +69,7 @@ public sealed class ContextoJson
     {
         Fabricantes = contexto.Fabricantes;
         Equipamentos = contexto.Equipamentos;
+        Chamados = contexto.Chamados;
     }
 
     public ContextoJson CarregarDadosPredefinidos()
@@ -87,12 +90,17 @@ public sealed class ContextoJson
             new("Notebool Dell", 3000m, DateTime.Parse("10/02/2023"), contextoPredefinido.Fabricantes[0]) { Id = 1 },
             new("Monitor Samsung Odyssey G5", 1000m, DateTime.Parse("07/01/2025"), contextoPredefinido.Fabricantes[2]) { Id = 2 }
         });
+        contextoPredefinido.Chamados.AddRange(new List<Chamado>
+        {
+            new("Computador não liga", "O computador não apresenta sinal", contextoPredefinido.Equipamentos[0],  DateTime.Now) { Id = 1 },
+            new("Monitor piscando", "O monitor apresenta oscilações na imagem", contextoPredefinido.Equipamentos[1],  DateTime.Now) { Id = 2 },
+        });
 
         return contextoPredefinido;
     }
 
     private bool PossuiDados()
     {
-        return Fabricantes.Count > 0 && Equipamentos.Count > 0;
+        return Fabricantes.Count > 0 && Equipamentos.Count > 0 && Chamados.Count > 0;
     }
 }
