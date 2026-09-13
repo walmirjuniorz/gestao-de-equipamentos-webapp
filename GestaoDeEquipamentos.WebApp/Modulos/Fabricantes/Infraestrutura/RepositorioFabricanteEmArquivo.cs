@@ -3,7 +3,7 @@ using GestaoDeEquipamentos.WebApp.Modulos.Fabricantes.Dominio;
 
 namespace GestaoDeEquipamentos.WebApp.Modulos.Fabricantes.Infraestrutura;
 
-public sealed class RepositorioFabricanteEmArquivo : RepositorioBaseEmArquivo<Fabricante>
+public sealed class RepositorioFabricanteEmArquivo : RepositorioBaseEmArquivo<Fabricante>, IRepositorioFabricante
 {
     public RepositorioFabricanteEmArquivo(ContextoJson contexto) : base(contexto)
     {
