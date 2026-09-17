@@ -7,10 +7,10 @@ using Microsoft.AspNetCore.Mvc;
 
 public class EquipamentoController : Controller
 {
-    private readonly RepositorioEquipamentoEmArquivo repositorioEquipamento;
-    private readonly RepositorioFabricanteEmArquivo repositorioFabricante;
+    private readonly IRepositorioEquipamento repositorioEquipamento;
+    private readonly IRepositorioFabricante repositorioFabricante;
 
-    public EquipamentoController(RepositorioEquipamentoEmArquivo repositorioEquipamento, RepositorioFabricanteEmArquivo repositorioFabricante)
+    public EquipamentoController(IRepositorioEquipamento repositorioEquipamento, IRepositorioFabricante repositorioFabricante)
     {
         this.repositorioEquipamento = repositorioEquipamento;
         this.repositorioFabricante = repositorioFabricante;

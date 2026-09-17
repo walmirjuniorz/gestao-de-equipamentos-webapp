@@ -1,5 +1,6 @@
 using GestaoDeEquipamentos.WebApp.Compartilhado.Infraestrutura.Arquivos;
 using GestaoDeEquipamentos.WebApp.Modulos.Chamados.Infraestrutura;
+using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Infraestrutura;
 using GestaoDeEquipamentos.WebApp.Modulos.Fabricantes.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Fabricantes.Infraestrutura;
@@ -29,8 +30,12 @@ public static class InjecaoDeDependencia
         {
             return new RepositorioFabricanteEmSql(connectionString);
         });
-        services.AddScoped<RepositorioFabricanteEmArquivo>();
-        services.AddScoped<RepositorioEquipamentoEmArquivo>();
+
+        services.AddScoped<IRepositorioEquipamento>(_ =>
+        {
+            return new RepositorioEquipamentoEmSql(connectionString);
+        });
+
         services.AddScoped<RepositorioChamadoEmArquivo>();
     }
 }
