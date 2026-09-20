@@ -127,4 +127,19 @@ public sealed class RepositorioEquipamentoEmSql : IRepositorioEquipamento
         equipamento.Fabricante = fabricante;
         return equipamento;
     }
+    public bool ExisteParaFabricante(int fabricanteId)
+    {
+        const string query =
+        """
+        SELECT CAST(CASE WHEN EXISTS (
+            SELECT 1
+            FROM dbo.TBEquipamentos
+            WHERE FabricanteId = @FabricanteId
+        ) THEN 1 ELSE 0 END AS BIT)
+        """;
+
+        using SqlConnection conexao = new(connectionString);
+
+        return conexao.QuerySingle<bool>(query, new { FabricanteId = fabricanteId });
+    }
 }
