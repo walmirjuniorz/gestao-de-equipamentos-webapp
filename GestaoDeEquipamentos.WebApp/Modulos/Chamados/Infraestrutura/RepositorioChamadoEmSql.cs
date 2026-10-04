@@ -4,23 +4,27 @@ using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Fabricantes.Dominio;
 using Microsoft.Data.SqlClient;
 
+namespace GestaoDeEquipamentos.WebApp.Modulos.Chamados.Infraestrutura;
+
 public sealed class RepositorioChamadoEmSql : IRepositorioChamado
 {
     private readonly string connectionString;
+
     public RepositorioChamadoEmSql(string connectionString)
     {
         this.connectionString = connectionString;
     }
+
     public void Cadastrar(Chamado novoRegistro)
     {
         const string query =
         """
-        INSERT INTO TBChamados (Titulo, Descricao, EquipamentoId, DataAbertura)
-        OUTPUT INSERTD.Id
+        INSERT INTO dbo.TBChamados (Titulo, Descricao, EquipamentoId, DataAbertura)
+        OUTPUT INSERTED.Id
         VALUES (@Titulo, @Descricao, @EquipamentoId, @DataAbertura)
         """;
 
-        using SqlConnection conexao = new SqlConnection(connectionString);
+        using SqlConnection conexao = new(connectionString);
 
         novoRegistro.Id = conexao.QuerySingle<int>(query, new
         {
@@ -30,13 +34,13 @@ public sealed class RepositorioChamadoEmSql : IRepositorioChamado
             novoRegistro.DataAbertura
         });
     }
+
     public bool Editar(int idSelecionado, Chamado entidadeAtualizada)
     {
         const string query =
         """
-        UPDATE TBEquipamentos
-        SET
-            Titulo = @Titulo,
+        UPDATE dbo.TBChamados
+        SET Titulo = @Titulo,
             Descricao = @Descricao,
             EquipamentoId = @EquipamentoId,
             DataAbertura = @DataAbertura
@@ -51,14 +55,15 @@ public sealed class RepositorioChamadoEmSql : IRepositorioChamado
             entidadeAtualizada.Titulo,
             entidadeAtualizada.Descricao,
             EquipamentoId = entidadeAtualizada.Equipamento.Id,
-            entidadeAtualizada.DataAbertura,
+            entidadeAtualizada.DataAbertura
         });
 
         return quantidadeRegistrosAlterados == 1;
     }
+
     public bool Excluir(int idSelecionado)
     {
-        const string query = "DELETE FROM TBEquipamentos WHERE Id = @Id";
+        const string query = "DELETE FROM dbo.TBChamados WHERE Id = @Id";
 
         using SqlConnection conexao = new(connectionString);
 
@@ -66,71 +71,50 @@ public sealed class RepositorioChamadoEmSql : IRepositorioChamado
 
         return quantidadeRegistrosExcluidos == 1;
     }
+
     public Chamado? SelecionarPorId(int idSelecionado)
     {
         const string query =
-                """
-        SELECT
-            c.Id
-            c.Titulo
-            c.Descricao
-            c.DataAbertura 
-            e.Id
-            ,e.Nome
-            ,e.PrecoAquisicao
-            ,e.DataFabricacao
-            ,f.Id
-            ,f.Nome
-            ,f.Email
-            ,f.Telefone
-        FROM dbo.TBChamados c
-        INNER JOIN dbo.TBEquipamentos e ON e.Id = c.FabricanteId
-        INNER JOIN dbo.TBFabricantes f ON f.Id = e.FabricanteId
-        WHERE E.Id = @Id
+        """
+        SELECT c.Id, c.Titulo, c.Descricao, c.DataAbertura,
+               e.Id, e.Nome, e.PrecoAquisicao, e.DataFabricacao,
+               f.Id, f.Nome, f.Email, f.Telefone
+        FROM dbo.TBChamados AS c
+        INNER JOIN dbo.TBEquipamentos AS e ON e.Id = c.EquipamentoId
+        INNER JOIN dbo.TBFabricantes AS f ON f.Id = e.FabricanteId
+        WHERE c.Id = @Id
         """;
 
         using SqlConnection conexao = new(connectionString);
 
         return conexao.Query<Chamado, Equipamento, Fabricante, Chamado>(
-            query, MapearChamadoCompleto,
+            query,
+            MapearChamadoCompleto,
             new { Id = idSelecionado }
-            ).SingleOrDefault();
+        ).SingleOrDefault();
     }
+
     public List<Chamado> SelecionarTodos()
     {
         const string query =
         """
-        SELECT
-            c.Id,
-            c.Titulo,
-            c.Descricao,
-            c.DataAbertura,
-            e.Id,
-            e.Nome,
-            e.PrecoAquisicao,
-            e.DataFabricacao,
-            f.Id,
-            f.Nome,
-            f.Email,
-            f.Telefone
-        FROM dbo.TBChamados c
-        INNER JOIN dbo.TBEquipamentos e ON e.Id = c.FabricanteId
-        INNER JOIN dbo.TBFabricantes f ON f.Id = e.FabricanteId
-        ORDER BY = @Id
+        SELECT c.Id, c.Titulo, c.Descricao, c.DataAbertura,
+               e.Id, e.Nome, e.PrecoAquisicao, e.DataFabricacao,
+               f.Id, f.Nome, f.Email, f.Telefone
+        FROM dbo.TBChamados AS c
+        INNER JOIN dbo.TBEquipamentos AS e ON e.Id = c.EquipamentoId
+        INNER JOIN dbo.TBFabricantes AS f ON f.Id = e.FabricanteId
+        ORDER BY c.Id
         """;
 
         using SqlConnection conexao = new(connectionString);
 
         return conexao.Query<Chamado, Equipamento, Fabricante, Chamado>(
-            query, MapearChamadoCompleto).ToList();
+            query,
+            MapearChamadoCompleto
+        ).ToList();
     }
-    private static Chamado MapearChamadoCompleto(
-    Chamado chamado, Equipamento equipamento, Fabricante fabricante)
-    {
-        equipamento.Fabricante = fabricante;
-        chamado.Equipamento = equipamento;
-        return chamado;
-    }
+
     public bool ExisteParaEquipamento(int equipamentoId)
     {
         const string query =
@@ -145,5 +129,12 @@ public sealed class RepositorioChamadoEmSql : IRepositorioChamado
         using SqlConnection conexao = new(connectionString);
 
         return conexao.QuerySingle<bool>(query, new { EquipamentoId = equipamentoId });
+    }
+
+    private static Chamado MapearChamadoCompleto(Chamado chamado, Equipamento equipamento, Fabricante fabricante)
+    {
+        equipamento.Fabricante = fabricante;
+        chamado.Equipamento = equipamento;
+        return chamado;
     }
 }

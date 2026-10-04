@@ -1,3 +1,4 @@
+using GestaoDeEquipamentos.WebApp.Modulos.Chamados.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Apresentacao;
 using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Infraestrutura;
@@ -9,11 +10,13 @@ public class EquipamentoController : Controller
 {
     private readonly IRepositorioEquipamento repositorioEquipamento;
     private readonly IRepositorioFabricante repositorioFabricante;
+    private readonly IRepositorioChamado repositorioChamado;
 
-    public EquipamentoController(IRepositorioEquipamento repositorioEquipamento, IRepositorioFabricante repositorioFabricante)
+    public EquipamentoController(IRepositorioEquipamento repositorioEquipamento, IRepositorioFabricante repositorioFabricante, IRepositorioChamado repositorioChamado)
     {
         this.repositorioEquipamento = repositorioEquipamento;
         this.repositorioFabricante = repositorioFabricante;
+        this.repositorioChamado = repositorioChamado;
     }
     [HttpGet]
     public ActionResult Listar()
@@ -102,6 +105,7 @@ public class EquipamentoController : Controller
         if (!ModelState.IsValid)
         {
             viewModel = viewModel with { FabricantesDisponiveis = ObterFabricantesDisponiveis() };
+            return View(viewModel);
         }
 
         Equipamento equipamentoAtualizado = new(
@@ -135,6 +139,14 @@ public class EquipamentoController : Controller
     [HttpPost]
     public ActionResult Excluir(ExcluirEquipamentoViewModel viewModel)
     {
+        if (repositorioChamado.ExisteParaEquipamento(viewModel.Id))
+        {
+            ModelState.AddModelError(string.Empty,
+                "Não é possível excluir este equipamento enquanto houver chamados vinculados a ele.");
+
+            return View(viewModel);
+        }
+
         bool conseguiuExcluir = repositorioEquipamento.Excluir(viewModel.Id);
 
         if (!conseguiuExcluir)

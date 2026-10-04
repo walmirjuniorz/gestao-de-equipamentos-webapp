@@ -59,7 +59,7 @@ public sealed class ContextoJson
         ContextoJson? contextoSalvo =
             JsonSerializer.Deserialize<ContextoJson>(jsonString, options);
 
-        if (contextoSalvo == null || !contextoSalvo.PossuiDados())
+        if (contextoSalvo == null)
             contextoSalvo = CarregarDadosPredefinidos();
 
         Carregar(contextoSalvo);
@@ -99,8 +99,4 @@ public sealed class ContextoJson
         return contextoPredefinido;
     }
 
-    private bool PossuiDados()
-    {
-        return Fabricantes.Count > 0 && Equipamentos.Count > 0 && Chamados.Count > 0;
-    }
 }

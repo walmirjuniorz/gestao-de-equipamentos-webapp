@@ -8,10 +8,10 @@ namespace GestaoDeEquipamentos.WebApp.Modulos.Chamados.Apresentacao;
 
 public class ChamadoController : Controller
 {
-    private readonly RepositorioChamadoEmArquivo repositorioChamado;
+    private readonly IRepositorioChamado repositorioChamado;
     private readonly IRepositorioEquipamento repositorioEquipamento;
 
-    public ChamadoController(RepositorioChamadoEmArquivo repositorioChamado, IRepositorioEquipamento repositorioEquipamento)
+    public ChamadoController(IRepositorioChamado repositorioChamado, IRepositorioEquipamento repositorioEquipamento)
     {
         this.repositorioChamado = repositorioChamado;
         this.repositorioEquipamento = repositorioEquipamento;
@@ -95,6 +95,9 @@ public class ChamadoController : Controller
     {
         Chamado? chamadoSelecionado = repositorioChamado.SelecionarPorId(id);
 
+        if (chamadoSelecionado == null)
+            return NotFound();
+
         Equipamento? equipamentoSelecionado = repositorioEquipamento.SelecionarPorId(viewModel.EquipamentoId);
 
         if (equipamentoSelecionado == null)
@@ -103,13 +106,14 @@ public class ChamadoController : Controller
         if (!ModelState.IsValid)
         {
             viewModel = viewModel with { EquipamentosDisponiveis = ObterEquipamentosDisponiveis() };
+            return View(viewModel);
         }
 
         Chamado chamadoAtualizado = new(
             viewModel.Titulo ?? string.Empty,
             viewModel.Descricao ?? string.Empty,
             equipamentoSelecionado!,
-            chamadoSelecionado!.DataAbertura
+            chamadoSelecionado.DataAbertura
         );
 
         bool conseguiuEditar = repositorioChamado.Editar(id, chamadoAtualizado);
