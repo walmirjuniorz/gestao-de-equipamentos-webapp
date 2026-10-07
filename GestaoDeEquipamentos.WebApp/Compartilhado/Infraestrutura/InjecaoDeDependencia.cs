@@ -1,4 +1,4 @@
-using GestaoDeEquipamentos.WebApp.Compartilhado.Infraestrutura.Arquivos;
+﻿using GestaoDeEquipamentos.WebApp.Compartilhado.Infraestrutura.Arquivos;
 using GestaoDeEquipamentos.WebApp.Modulos.Chamados.Infraestrutura;
 using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Dominio;
 using GestaoDeEquipamentos.WebApp.Modulos.Equipamentos.Infraestrutura;
@@ -10,32 +10,17 @@ namespace GestaoDeEquipamentos.WebApp.Compartilhado.Infraestrutura;
 public static class InjecaoDeDependencia
 {
     public static void AdicionarCamadaDeInfraestrutura(
-        this IServiceCollection services, IConfiguration configuration
-        )
+        this IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped(services =>
         {
             ContextoJson contexto = new ContextoJson();
-
             contexto.Carregar();
-
             return contexto;
         });
 
-        string? connectionString = configuration.GetConnectionString("SQLServerDocker")
-        ?? throw new InvalidOperationException("A string de conexão \"SQLServerDocker\" não foi configurada");
-
-        // Configurar repositórios
-        services.AddScoped<IRepositorioFabricante>(_ =>
-        {
-            return new RepositorioFabricanteEmSql(connectionString);
-        });
-
-        services.AddScoped<IRepositorioEquipamento>(_ =>
-        {
-            return new RepositorioEquipamentoEmSql(connectionString);
-        });
-
+        services.AddScoped<IRepositorioFabricante, RepositorioFabricanteEmArquivo>();
+        services.AddScoped<IRepositorioEquipamento, RepositorioEquipamentoEmArquivo>();
         services.AddScoped<RepositorioChamadoEmArquivo>();
     }
 }
