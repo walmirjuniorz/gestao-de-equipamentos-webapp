@@ -2,7 +2,7 @@
 
 ## Projeto
 
-O Gestão de Equipamentos é um sistema desenvolvido para uma academia, com o objetivo de auxiliar no controle e gerenciamento dos equipamentos utilizados no estabelecimento. O sistema permite cadastrar fabricantes e equipamentos, além de registrar e acompanhar chamados relacionados aos equipamentos.
+O Gestão de Equipamentos é um sistema desenvolvido para auxiliar no controle e gerenciamento de equipamentos. O sistema permite cadastrar fabricantes e equipamentos, além de registrar e acompanhar chamados relacionados aos equipamentos.
 
 #### Funcionalidades
 - Cadastro, edição e exclusão de Fabricantes
